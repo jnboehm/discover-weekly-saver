@@ -6,16 +6,16 @@ import configparser
 def is_discover_weekly(playlist_dict):
     return playlist_dict['name'] == 'Discover Weekly'
 
-def aggregate_playlists(sp, user_name):
-    lists = sp.user_playlists(user_name)
-    playlists = lists['items']
+def aggregate_spotify(sp, api_fun, params):
+    resp = api_fun(params)
+    agg = resp['items']
 
-    lists = sp.next(lists)
-    while lists is not None:
-        playlists += lists['items']
-        lists = sp.next(lists)
+    resp = sp.next(resp)
+    while resp is not None:
+        agg += resp['items']
+        resp = sp.next(resp)
 
-    return playlists
+    return agg
 
 def main():
     config = configparser.ConfigParser()
@@ -32,8 +32,9 @@ def main():
                                      redirect_uri=redirect_uri)
 
     sp = spotipy.Spotify(auth=tok)
+    aggregate = lambda f, p: aggregate_spotify(sp, f, p)
 
-    playlists = aggregate_playlists(sp, user_name)
+    playlists = aggregate(lambda x: sp.user_playlists(*x), [user_name])
     discover_weekly = [p for p in playlists if is_discover_weekly(p)][0]
 
 if __name__ == '__main__':
