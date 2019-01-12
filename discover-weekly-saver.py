@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import spotipy
 import spotipy.util as util
 
