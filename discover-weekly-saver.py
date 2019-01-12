@@ -2,6 +2,7 @@ import spotipy
 import spotipy.util as util
 
 import configparser
+import datetime
 
 def is_discover_weekly(playlist_dict):
     return playlist_dict['name'] == 'Discover Weekly'
@@ -36,6 +37,43 @@ def main():
 
     playlists = aggregate(lambda x: sp.user_playlists(*x), [user_name])
     discover_weekly = [p for p in playlists if is_discover_weekly(p)][0]
+    tracks = sp.user_playlist_tracks(user_name, discover_weekly['uri'])
+
+    track_ids = [item['track']['id'] for item in tracks['items']]
+
+    other_pls = [p for p in playlists
+                 if not is_discover_weekly(p)
+                 and p['owner']['id'] == user_name]
+
+    all_exists = False
+    for p in other_pls:
+        p_tracks = aggregate(lambda x: sp.user_playlist_tracks(*x), [user_name, p['uri']])
+        # print(p['name'], 'has', len(p_tracks), 'tracks')
+        other_ids = [item['track']['id'] for item in p_tracks]
+
+        exists = True
+        for t_id in track_ids:
+            exists = exists and (t_id in other_ids)
+
+        all_exists = all_exists or exists
+        if all_exists:
+            break
+
+    if all_exists:
+        print(datetime.datetime.now(), 'Discover Weekly has already been saved')
+    else:
+        print('DW will be saved now')
+        year = datetime.datetime.now().year
+        week = datetime.datetime.now().isocalendar()[1]
+        dw_name = 'Discover Weekly ' + str(week) + '/' + str(year)
+        description = 'Automaticlly created playlist from discover weekly'
+        resp = sp.user_playlist_create(user_name, dw_name)
+
+        plist = resp['id']
+        resp = sp.user_playlist_add_tracks(user_name, plist, track_ids)
+
+        print('DW should be saved as', dw_name)
+        # resp = sp.user_playlist_change_details(user_name, plist, description=description)
 
 if __name__ == '__main__':
     main()
