@@ -67,7 +67,7 @@ def main():
             break
 
     if all_exists:
-        print(datetime.datetime.now(), 'Discover Weekly has already been saved')
+        print('Discover Weekly has already been saved')
     else:
         print('DW will be saved now')
         year = datetime.datetime.now().year
