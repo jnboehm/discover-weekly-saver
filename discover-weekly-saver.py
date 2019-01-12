@@ -37,7 +37,7 @@ def main():
     tok = util.prompt_for_user_token(user_name, scope=scope,
                                      client_id=client_id, client_secret=client_secret,
                                      redirect_uri=redirect_uri,
-                                     cache_path=conf_dir)
+                                     cache_path=conf_dir + 'cookie-' + user_name)
 
     sp = spotipy.Spotify(auth=tok)
     aggregate = lambda f, p: aggregate_spotify(sp, f, p)
