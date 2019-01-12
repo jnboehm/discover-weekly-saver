@@ -6,6 +6,7 @@ import spotipy.util as util
 import configparser
 import datetime
 import sys
+import os
 
 def is_discover_weekly(playlist_dict):
     return playlist_dict['name'] == 'Discover Weekly'
@@ -22,7 +23,7 @@ def aggregate_spotify(sp, api_fun, params):
     return agg
 
 def main():
-    conf_dir = '~/.config/dw-saver/'
+    conf_dir = os.environ['HOME'] + '/.config/dw-saver/'
     conf_file = conf_dir + 'dws.conf' if len(sys.argv) < 2 else sys.argv[1]
     config = configparser.ConfigParser()
     config.read_file(open(conf_file))
