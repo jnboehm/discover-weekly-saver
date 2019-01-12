@@ -22,7 +22,8 @@ def aggregate_spotify(sp, api_fun, params):
     return agg
 
 def main():
-    conf_file = r'dws.conf' if len(sys.argv) < 2 else sys.argv[1]
+    conf_dir = '~/.config/dw-saver/'
+    conf_file = conf_dir + 'dws.conf' if len(sys.argv) < 2 else sys.argv[1]
     config = configparser.ConfigParser()
     config.read_file(open(conf_file))
 
@@ -34,7 +35,8 @@ def main():
     scope = 'playlist-modify-public'
     tok = util.prompt_for_user_token(user_name, scope=scope,
                                      client_id=client_id, client_secret=client_secret,
-                                     redirect_uri=redirect_uri)
+                                     redirect_uri=redirect_uri,
+                                     cache_path=conf_dir)
 
     sp = spotipy.Spotify(auth=tok)
     aggregate = lambda f, p: aggregate_spotify(sp, f, p)
